@@ -1,0 +1,46 @@
+{
+    "name": "easeappphp/ea-rapid",
+    "description": "Async Easeapp PHP framework from the ground-up, based upon Amphp HTTP server",
+    "type": "library",
+	"require": {
+        "ext-json": "*",
+		"ext-intl": "*",
+        "php": ">=8.1",
+        "amphp/http-server": "^3.3",
+        "amphp/http-server-router": "^2.0",
+        "amphp/parallel": "^2.2",
+        "amphp/http-server-form-parser": "^2.0",
+        "monolog/monolog": "^3.5",
+        "amphp/log": "^2.0",
+        "illuminate/container": "^10.45",
+        "phpunit/php-timer": "^7.0"
+    },
+	"require-dev": {
+        "ext-json": "*",
+		"ext-intl": "*",
+        "php": ">=8.1",
+        "amphp/http-server": "^3.3",
+        "amphp/http-server-router": "^2.0",
+        "amphp/parallel": "^2.2",
+        "amphp/http-server-form-parser": "^2.0",
+        "monolog/monolog": "^3.5",
+        "amphp/log": "^2.0",
+        "illuminate/container": "^10.45",
+        "phpunit/php-timer": "^7.0"
+    },
+	"homepage": "https://github.com/easeappphp/ea-rapid",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Raghuveer Dendukuri",
+            "email": "securitywonks@gmail.com"
+        }
+    ],
+	"autoload": {
+       
+	   "files": ["src/Helpers/get-environment-variables.php","src/Helpers/session-check-functions.php","src/Helpers/date-functions.php","src/Helpers/validate-sanitize-functions.php"],
+	   "psr-4": {
+            "EaseAppPHP\\EARapid\\": "src/"
+        }
+    }
+}
