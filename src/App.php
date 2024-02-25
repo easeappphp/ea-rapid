@@ -98,9 +98,9 @@ Class App extends BaseApplication
 	 */
 	public function __construct(Container $container)
     {	
-		/* $this->container = $container;
+		$this->container = $container;
 		
-		$this->config = $this->container->get('config');  */  
+		$this->config = $this->container->get('config');   
 		
 		/*
 		*--------------------------------------------------------------------------
@@ -108,13 +108,13 @@ Class App extends BaseApplication
 		*--------------------------------------------------------------------------
 		*
 		*/
-		/* if (function_exists("date_default_timezone_set")) {
+		if (function_exists("date_default_timezone_set")) {
 				
 			date_default_timezone_set($_ENV['TIMEZONE']);
 
 		}
-		 */
-		/* //Check if the request is based upon Console or Web
+		
+		//Check if the request is based upon Console or Web
 		$eaIsConsole = new EAIsConsole();
 		$this->container->instance('EAIsConsole', $eaIsConsole);
 		$this->eaIsConsoleInstance = $this->container->get('EAIsConsole')->checkSTDIN();
@@ -160,7 +160,7 @@ Class App extends BaseApplication
 			
 			$this->container->instance('argv', $this->argv);
 			
-		} */
+		}
 		
     }
 	
@@ -171,7 +171,7 @@ Class App extends BaseApplication
 	 */
 	public function init()
 	{
-		/* if ($this->container->get('EARequestConsoleStatusResult') == "Console") {
+		if ($this->container->get('EARequestConsoleStatusResult') == "Console") {
 			
 			//Console
 			if ($_ENV['APP_DEBUG'] == "true") {	
@@ -204,7 +204,7 @@ Class App extends BaseApplication
 			//Save available Serviceproviders to Container
 			$this->container->instance('EALoadedServiceProviders', $this->loadedProviders);
 			$this->eaLoadedServiceProvidersList = $this->container->get('EALoadedServiceProviders'); 
-		} */
+		}
 	}
 	
 	/**
@@ -214,7 +214,7 @@ Class App extends BaseApplication
 	 */
 	public function run()
 	{
-        /* if ($this->container->get('EARequestConsoleStatusResult') == "Console") {
+        if ($this->container->get('EARequestConsoleStatusResult') == "Console") {
 			
 			//Console
 			
@@ -378,7 +378,7 @@ Class App extends BaseApplication
 			$this->requestHandlerRunnerServerInstance = $this->container->get('\Laminas\HttpHandlerRunner\RequestHandlerRunner');
 			$this->requestHandlerRunnerServerInstance->run();
 			
-		} */
+		}
 	}
         
 	/**
