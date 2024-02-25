@@ -19,9 +19,14 @@ use \Monolog\Processor\PsrLogMessageProcessor;
 use \Illuminate\Container\Container;
 use \SebastianBergmann\Timer\Timer;
 
-//use \EaseAppPHP\Core\EAConfig;
-//use \EaseAppPHP\Core\EAIsConsole;
-use \EaseAppPHP\Foundation\BaseApplication;
+use \EaseAppPHP\EARapid\Core\EAConfig;
+use \EaseAppPHP\EARapid\Core\EAIsConsole;
+use \EaseAppPHP\EARapid\Foundation\BaseApplication;
+
+/**
+ * Use the fully-qualified AllowDynamicProperties, otherwise the #[AllowDynamicProperties] attribute on "MyClass" WILL NOT WORK.
+ */
+use \AllowDynamicProperties;
 
 /* use \Illuminate\Container\Container;
 use \EaseAppPHP\Core\EAConfig;
@@ -117,10 +122,10 @@ Class App extends BaseApplication
 		//Check if the request is based upon Console or Web
 		$eaIsConsole = new EAIsConsole();
 		$this->container->instance('EAIsConsole', $eaIsConsole);
-		$this->eaIsConsoleInstance = $this->container->get('EAIsConsole')->checkSTDIN();
 		
 		//Save EA REQUEST Console Status Result to Container
-		$this->container->instance('EARequestConsoleStatusResult', $this->eaIsConsoleInstance);
+		//$this->container->instance('EARequestConsoleStatusResult', $this->eaIsConsoleInstance);
+		$this->container->instance('EARequestConsoleStatusResult', $this->container->get('EAIsConsole')->checkSTDIN());
 		$this->eaRequestConsoleStatusResult = $this->container->get('EARequestConsoleStatusResult');   
 		
 		if ($this->container->get('EARequestConsoleStatusResult') == "Web") {

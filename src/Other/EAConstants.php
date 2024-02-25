@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace EaseAppPHP\EARapid\Other;
+namespace EaseAppPHP\Other;
 
 use \Illuminate\Container\Container;
 
