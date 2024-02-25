@@ -14,7 +14,8 @@
         "amphp/log": "^2.0",
         "illuminate/container": "^10.45",
         "phpunit/php-timer": "^7.0",
-        "filp/whoops": "^2.15"
+        "filp/whoops": "^2.15",
+        "vlucas/phpdotenv": "^5.6"
     },
 	"require-dev": {
         "ext-json": "*",
@@ -27,7 +28,9 @@
         "monolog/monolog": "^3.5",
         "amphp/log": "^2.0",
         "illuminate/container": "^10.45",
-        "phpunit/php-timer": "^7.0"
+        "phpunit/php-timer": "^7.0",
+        "filp/whoops": "^2.15",
+        "vlucas/phpdotenv": "^5.6"
     },
 	"homepage": "https://github.com/easeappphp/ea-rapid",
     "license": "MIT",
