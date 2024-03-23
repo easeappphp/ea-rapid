@@ -1,5 +1,5 @@
 <?php
-namespace EaseAppPHP\Foundation;
+namespace EaseAppPHP\EARapid\Foundation;
 
 use \EaseAppPHP\EARapid\Foundation\Interfaces\ArrayableInterface;
 

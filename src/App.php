@@ -122,6 +122,7 @@ Class App extends BaseApplication
 		//Check if the request is based upon Console or Web
 		$eaIsConsole = new EAIsConsole();
 		$this->container->instance('EAIsConsole', $eaIsConsole);
+		//$this->eaIsConsoleInstance = $this->container->get('EAIsConsole')->checkSTDIN();
 		
 		//Save EA REQUEST Console Status Result to Container
 		//$this->container->instance('EARequestConsoleStatusResult', $this->eaIsConsoleInstance);

@@ -24,7 +24,7 @@ if (interface_exists('\EaseAppPHP\EARapid\Foundation\Interfaces\BaseWebControlle
 			$this->matchedRouteDetails = $this->container->get('MatchedRouteDetails');
 			$this->serverRequest = $this->container->get('\Laminas\Diactoros\ServerRequestFactory');
 			$this->queryParams = $this->serverRequest->getQueryParams();
-			$this->response = $this->container->get('\EaseAppPHP\Foundation\BaseWebResponse');
+			$this->response = $this->container->get('\EaseAppPHP\EARapid\Foundation\BaseWebResponse');
 		}
 		
 		/**
