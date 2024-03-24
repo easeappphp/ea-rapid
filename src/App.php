@@ -132,11 +132,11 @@ Class App extends BaseApplication
 		if ($this->container->get('EARequestConsoleStatusResult') == "Web") {
 			
 			//Web
-			$serverRequestInstance = \Laminas\Diactoros\ServerRequestFactory::fromGlobals();
-			$container->instance('\Laminas\Diactoros\ServerRequestFactory', $serverRequestInstance);
-			$this->serverRequest = $this->container->get('\Laminas\Diactoros\ServerRequestFactory');
+			//$serverRequestInstance = \Laminas\Diactoros\ServerRequestFactory::fromGlobals();
+			//$container->instance('\Laminas\Diactoros\ServerRequestFactory', $serverRequestInstance);
+			//$this->serverRequest = $this->container->get('\Laminas\Diactoros\ServerRequestFactory');
 		
-			$this->response = $this->container->get('\EaseAppPHP\Foundation\BaseWebResponse');
+			$this->response = $this->container->get('\EaseAppPHP\EARapid\Foundation\BaseWebResponse');
 			
 		} 
 
@@ -322,7 +322,7 @@ Class App extends BaseApplication
 		} else {
 		
 			//Web
-			$this->middlewarePipeQueueEntries = $this->container->get('middlewarePipeQueueEntries');
+			/*$this->middlewarePipeQueueEntries = $this->container->get('middlewarePipeQueueEntries');
 			
 			//https://docs.laminas.dev/laminas-httphandlerrunner/emitters/
 			//Define Max Buffer Length for Files
@@ -383,7 +383,7 @@ Class App extends BaseApplication
 			$this->container->instance('\Laminas\HttpHandlerRunner\RequestHandlerRunner', $requestHandlerRunnerServer);
 			$this->requestHandlerRunnerServerInstance = $this->container->get('\Laminas\HttpHandlerRunner\RequestHandlerRunner');
 			$this->requestHandlerRunnerServerInstance->run();
-			
+			*/
 		}
 	}
         

@@ -24,7 +24,7 @@ class EAConfig
 	public function __construct(Container $container)
 	{
 		$this->container = $container;
-		$this->serverRequest = $this->container->get('\Laminas\Diactoros\ServerRequestFactory');
+		//$this->serverRequest = $this->container->get('\Laminas\Diactoros\ServerRequestFactory');
 	}
 	
 	/**

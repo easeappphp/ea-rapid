@@ -22,7 +22,7 @@ if (interface_exists('\EaseAppPHP\EARapid\Foundation\Interfaces\BaseWebControlle
 			$this->container = $container;
 			$this->config = $this->container->get('config');
 			$this->matchedRouteDetails = $this->container->get('MatchedRouteDetails');
-			$this->serverRequest = $this->container->get('\Laminas\Diactoros\ServerRequestFactory');
+			//$this->serverRequest = $this->container->get('\Laminas\Diactoros\ServerRequestFactory');
 			$this->queryParams = $this->serverRequest->getQueryParams();
 			$this->response = $this->container->get('\EaseAppPHP\EARapid\Foundation\BaseWebResponse');
 		}
