@@ -15,7 +15,8 @@
         "illuminate/container": "^10.46.0",
         "phpunit/php-timer": "^7.0",
         "filp/whoops": "^2.15",
-        "vlucas/phpdotenv": "^5.6"
+        "vlucas/phpdotenv": "^5.6",
+		"easeappphp/ea-cli-router": ">=0.0.3"
     },
 	"require-dev": {
         "ext-json": "*",
@@ -30,7 +31,8 @@
         "illuminate/container": "^10.46.0",
         "phpunit/php-timer": "^7.0",
         "filp/whoops": "^2.15",
-        "vlucas/phpdotenv": "^5.6"
+        "vlucas/phpdotenv": "^5.6",
+		"easeappphp/ea-cli-router": ">=0.0.3"
     },
 	"homepage": "https://github.com/easeappphp/ea-rapid",
     "license": "MIT",
