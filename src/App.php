@@ -166,7 +166,80 @@ Class App extends BaseApplication
 			
 			$this->container->instance('argv', $this->argv);
 			
+			
+			/* // Note any PSR-3 logger may be used, Monolog is only an example.
+			$logHandler = new StreamHandler(ByteStream\getStdout());
+			$logHandler->pushProcessor(new PsrLogMessageProcessor());
+			$logHandler->setFormatter(new ConsoleFormatter());
+
+			$loggerServer = new Logger('server');
+			$loggerServer->pushHandler($logHandler);
+
+			$this->container->instance('\Amp\Log', $loggerServer); */
+			$logger = $this->container->get('\Amp\Log');
+			
+			//Define HTTP Server for direct access
+			$server = SocketHttpServer::createForDirectAccess($logger);
+
+			$this->container->instance('\Amp\Http\Server\SocketHttpServer', $server);
+			$server = $this->container->get('\Amp\Http\Server\SocketHttpServer');
+
+			//Define error handler
+			$errorHandler = new DefaultErrorHandler();
+
+			$this->container->instance('\Amp\Http\Server\DefaultErrorHandler', $errorHandler);
+			$errorHandler = $this->container->get('\Amp\Http\Server\DefaultErrorHandler');
+
+			//Define router
+			$router = new Router($server, $logger, $errorHandler);
+
+			$this->container->instance('\Amp\Http\Server\Router', $router);
+			$router = $this->container->get('\Amp\Http\Server\Router');
+
+			$fallback = new ClosureRequestHandler(function () {
+						return new Response(HttpStatus::NO_CONTENT);
+					});
+			/* $fallbackResponse = new ClosureRequestHandler(function () {
+						return new Response(HttpStatus::NO_CONTENT);
+					});
+					
+            $this->container->instance('\Amp\Http\Server\Response', $fallbackResponse);
+			$fallback = $this->container->get('\Amp\Http\Server\Response'); */
+			//$router->addMiddleware(new Amp\Http\Server\Middleware\CompressionMiddleware());
+
+
+			$router->addRoute('GET', '/', new ClosureRequestHandler(
+				function () {
+					return new Response(
+						status: HttpStatus::OK,
+						headers: ['content-type' => 'text/plain'],
+						body: 'Hello, world! this is default page based on router',
+					);
+				},
+			));
+
+			//$router->addRoute('GET', '/{name}', new Controller());
+
+			//Define fallback
+			$router->setFallback($fallback);
+
+			//$server->expose('127.0.0.1:1337');
+			$server->expose('0.0.0.0:1337');
+
+			//$server->expose(new Socket\InternetAddress("0.0.0.0", 1337));
+			//$server->expose(new Socket\InternetAddress("[::]", 1337));
+			 
+
+			//$server->start($requestHandler, $errorHandler);
+			$server->start($router, $errorHandler);
+
+			// Serve requests until SIGINT or SIGTERM is received by the process.
+			\Amp\trapSignal([SIGINT, SIGTERM]);
+
+			$server->stop(); 
 		}
+		
+		
 		
     }
 	
@@ -224,6 +297,57 @@ Class App extends BaseApplication
 			
 			//Console
 			
+			/* $logger = $this->container->get('\Amp\Log');
+			
+			$server = $this->container->get('\Amp\Http\Server\SocketHttpServer');
+
+			$errorHandler = $this->container->get('\Amp\Http\Server\DefaultErrorHandler');
+			
+			//Define router
+			$router = new Router($server, $logger, $errorHandler);
+
+			$this->container->instance('\Amp\Http\Server\Router', $router);
+			$router = $this->container->get('\Amp\Http\Server\Router');
+
+			$fallbackResponse = new ClosureRequestHandler(function () {
+						return new Response(HttpStatus::NO_CONTENT);
+					});
+					
+            $this->container->instance('\Amp\Http\Server\Response', $fallbackResponse);
+			$fallback = $this->container->get('\Amp\Http\Server\Response');
+			//$router->addMiddleware(new Amp\Http\Server\Middleware\CompressionMiddleware());
+
+
+			$router->addRoute('GET', '/', new ClosureRequestHandler(
+				function () {
+					return new Response(
+						status: HttpStatus::OK,
+						headers: ['content-type' => 'text/plain'],
+						body: 'Hello, world! this is default page based on router',
+					);
+				},
+			));
+
+			//$router->addRoute('GET', '/{name}', new Controller());
+
+			//Define fallback
+			$router->setFallback($fallback);
+
+			//$server->expose('127.0.0.1:1337');
+			$server->expose('0.0.0.0:1337');
+
+			//$server->expose(new Socket\InternetAddress("0.0.0.0", 1337));
+			//$server->expose(new Socket\InternetAddress("[::]", 1337));
+			 
+
+			//$server->start($requestHandler, $errorHandler);
+			$server->start($router, $errorHandler);
+
+			// Serve requests until SIGINT or SIGTERM is received by the process.
+			\Amp\trapSignal([SIGINT, SIGTERM]);
+
+			$server->stop(); */
+			/* 
 			$matchedRouteResponse = $this->container->get('matchedRouteResponse');
 			
 			$this->matchedRouteKey = $this->container->get('MatchedRouteKey'); 
@@ -317,7 +441,7 @@ Class App extends BaseApplication
 				//throw new \Exception("cli route does not exist!\n");
 				echo "cli route does not exist!\n";
 				
-			}
+			} */
 			
 		} else {
 		
