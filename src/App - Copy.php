@@ -92,13 +92,6 @@ Class App extends BaseApplication
 	protected $loadedProviders = [];
 	protected $eaLoadedServiceProvidersList;	
 	protected $response;
-	
-	protected $logger;
-	protected $amppHTTPServer;
-	protected $amphpErrorhandler;
-	protected $amphpRouter;
-	protected $amphpFallbackRoute;
-	protected $amphpTrapSignal;
 		
 	
 	/**
@@ -173,81 +166,77 @@ Class App extends BaseApplication
 			
 			$this->container->instance('argv', $this->argv);
 			
-			if ($this->argv[0] == "'start.php'") {
-				/* // Note any PSR-3 logger may be used, Monolog is only an example.
-				$logHandler = new StreamHandler(ByteStream\getStdout());
-				$logHandler->pushProcessor(new PsrLogMessageProcessor());
-				$logHandler->setFormatter(new ConsoleFormatter());
+			
+			/* // Note any PSR-3 logger may be used, Monolog is only an example.
+			$logHandler = new StreamHandler(ByteStream\getStdout());
+			$logHandler->pushProcessor(new PsrLogMessageProcessor());
+			$logHandler->setFormatter(new ConsoleFormatter());
 
-				$loggerServer = new Logger('server');
-				$loggerServer->pushHandler($logHandler);
+			$loggerServer = new Logger('server');
+			$loggerServer->pushHandler($logHandler);
 
-				$this->container->instance('\Amp\Log', $loggerServer); */
-				$this->logger = $this->container->get('\Amp\Log');
-				
-				//Define HTTP Server for direct access
-				$server = SocketHttpServer::createForDirectAccess($this->logger);
+			$this->container->instance('\Amp\Log', $loggerServer); */
+			$logger = $this->container->get('\Amp\Log');
+			
+			//Define HTTP Server for direct access
+			$server = SocketHttpServer::createForDirectAccess($logger);
 
-				$this->container->instance('\Amp\Http\Server\SocketHttpServer', $server);
-				$this->amppHTTPServer = $this->container->get('\Amp\Http\Server\SocketHttpServer');
+			$this->container->instance('\Amp\Http\Server\SocketHttpServer', $server);
+			$server = $this->container->get('\Amp\Http\Server\SocketHttpServer');
 
-				//Define error handler
-				$errorHandler = new DefaultErrorHandler();
+			//Define error handler
+			$errorHandler = new DefaultErrorHandler();
 
-				$this->container->instance('\Amp\Http\Server\DefaultErrorHandler', $errorHandler);
-				$this->amphpErrorhandler = $this->container->get('\Amp\Http\Server\DefaultErrorHandler');
-				
-				 //Define router
-				$router = new Router($this->amppHTTPServer, $this->logger, $this->amphpErrorhandler);
+			$this->container->instance('\Amp\Http\Server\DefaultErrorHandler', $errorHandler);
+			$errorHandler = $this->container->get('\Amp\Http\Server\DefaultErrorHandler');
 
-				$this->container->instance('\Amp\Http\Server\Router', $router);
-				$this->amphpRouter = $this->container->get('\Amp\Http\Server\Router');
+			//Define router
+			$router = new Router($server, $logger, $errorHandler);
 
-				
-				$fallbackResponse = new ClosureRequestHandler(function () {
-							return new Response(HttpStatus::NO_CONTENT);
-						});
-						
-				$this->container->instance('\Amp\Http\Server\Response', $fallbackResponse);
-				$this->amphpFallbackRoute = $this->container->get('\Amp\Http\Server\Response'); 
-				//$this->amphpRouter->addMiddleware(new Amp\Http\Server\Middleware\CompressionMiddleware());
+			$this->container->instance('\Amp\Http\Server\Router', $router);
+			$router = $this->container->get('\Amp\Http\Server\Router');
+
+			$fallback = new ClosureRequestHandler(function () {
+						return new Response(HttpStatus::NO_CONTENT);
+					});
+			/* $fallbackResponse = new ClosureRequestHandler(function () {
+						return new Response(HttpStatus::NO_CONTENT);
+					});
+					
+            $this->container->instance('\Amp\Http\Server\Response', $fallbackResponse);
+			$fallback = $this->container->get('\Amp\Http\Server\Response'); */
+			//$router->addMiddleware(new Amp\Http\Server\Middleware\CompressionMiddleware());
 
 
-				$this->amphpRouter->addRoute('GET', '/', new ClosureRequestHandler(
-					function () {
-						return new Response(
-							status: HttpStatus::OK,
-							headers: ['content-type' => 'text/plain'],
-							body: 'Hello, world! this is default page based on router',
-						);
-					},
-				));
+			$router->addRoute('GET', '/', new ClosureRequestHandler(
+				function () {
+					return new Response(
+						status: HttpStatus::OK,
+						headers: ['content-type' => 'text/plain'],
+						body: 'Hello, world! this is default page based on router',
+					);
+				},
+			));
 
-				//$this->amphpRouter->addRoute('GET', '/{name}', new Controller());
+			//$router->addRoute('GET', '/{name}', new Controller());
 
-				//Define fallback
-				$this->amphpRouter->setFallback($this->amphpFallbackRoute);
-				
-				//$server->expose('127.0.0.1:1337');
-				$this->amppHTTPServer->expose('0.0.0.0:1337');
+			//Define fallback
+			$router->setFallback($fallback);
 
-				//$server->expose(new Socket\InternetAddress("0.0.0.0", 1337));
-				//$server->expose(new Socket\InternetAddress("[::]", 1337));
-				 
+			//$server->expose('127.0.0.1:1337');
+			$server->expose('0.0.0.0:1337');
 
-				//$this->amppHTTPServer->start($requestHandler, $this->amphpErrorhandler);
-				$this->amppHTTPServer->start($this->amphpRouter, $this->amphpErrorhandler);
+			//$server->expose(new Socket\InternetAddress("0.0.0.0", 1337));
+			//$server->expose(new Socket\InternetAddress("[::]", 1337));
+			 
 
-				// Serve requests until SIGINT or SIGTERM is received by the process.
-				//\Amp\trapSignal([SIGINT, SIGTERM]);
-				
-				// Await SIGINT or SIGTERM to be received.
-				$this->amphpTrapSignal = \Amp\trapSignal([SIGINT, SIGTERM]);
+			//$server->start($requestHandler, $errorHandler);
+			$server->start($router, $errorHandler);
 
-				$this->logger->info("Caught signal $this->amphpTrapSignal, stopping server");
+			// Serve requests until SIGINT or SIGTERM is received by the process.
+			\Amp\trapSignal([SIGINT, SIGTERM]);
 
-				$this->amppHTTPServer->stop();
-			} 
+			$server->stop(); 
 		}
 		
 		
@@ -307,159 +296,153 @@ Class App extends BaseApplication
         if ($this->container->get('EARequestConsoleStatusResult') == "Console") {
 			
 			//Console
-			if ($this->argv[0] == "'start.php'") {
-				
-                			
-				
-				/* $logger = $this->container->get('\Amp\Log');
-				
-				$server = $this->container->get('\Amp\Http\Server\SocketHttpServer');
-
-				$errorHandler = $this->container->get('\Amp\Http\Server\DefaultErrorHandler');
-				
-				//Define router
-				$router = new Router($server, $logger, $errorHandler);
-
-				$this->container->instance('\Amp\Http\Server\Router', $router);
-				$router = $this->container->get('\Amp\Http\Server\Router');
-
-				$fallbackResponse = new ClosureRequestHandler(function () {
-							return new Response(HttpStatus::NO_CONTENT);
-						});
-						
-				$this->container->instance('\Amp\Http\Server\Response', $fallbackResponse);
-				$fallback = $this->container->get('\Amp\Http\Server\Response');
-				//$router->addMiddleware(new Amp\Http\Server\Middleware\CompressionMiddleware());
-
-
-				$router->addRoute('GET', '/', new ClosureRequestHandler(
-					function () {
-						return new Response(
-							status: HttpStatus::OK,
-							headers: ['content-type' => 'text/plain'],
-							body: 'Hello, world! this is default page based on router',
-						);
-					},
-				));
-
-				//$router->addRoute('GET', '/{name}', new Controller());
-
-				//Define fallback
-				$router->setFallback($fallback);
-
-				//$server->expose('127.0.0.1:1337');
-				$server->expose('0.0.0.0:1337');
-
-				//$server->expose(new Socket\InternetAddress("0.0.0.0", 1337));
-				//$server->expose(new Socket\InternetAddress("[::]", 1337));
-				 
-
-				//$server->start($requestHandler, $errorHandler);
-				$server->start($router, $errorHandler);
-
-				// Serve requests until SIGINT or SIGTERM is received by the process.
-				\Amp\trapSignal([SIGINT, SIGTERM]);
-
-				$server->stop(); */
-			}
 			
-			if ($this->argv[0] == "'console.php'") {
-				/* 
-				$matchedRouteResponse = $this->container->get('matchedRouteResponse');
-				
-				$this->matchedRouteKey = $this->container->get('MatchedRouteKey'); 
-				
-				$this->matchedRouteDetails = $this->container->get('MatchedRouteDetails'); 
-				
-				$requiredRouteType = "";
-				$requiredRouteType = $this->matchedRouteDetails["route_type"];
-				
-				$pageStatus = $this->matchedRouteDetails["status"];
-				$pageNumberOfRecords = $this->matchedRouteDetails["number_of_records"];
-				$pageNumberOfLoopsCount = $this->matchedRouteDetails["number_of_loops_count"];
-				$pageSleepTimeMinimumSeconds = $this->matchedRouteDetails["sleep_time_minimum_seconds"];
-				$pageSleepTimeMaximumSeconds = $this->matchedRouteDetails["sleep_time_maximum_seconds"];
-				$pageSleepIntervalDefinition = $this->matchedRouteDetails["sleep_interval_definition"];
-				$pageFilename = $this->matchedRouteDetails["page_filename"];
-				$pageRouteType = $this->matchedRouteDetails["route_type"];
-				$pageControllerType = $this->matchedRouteDetails["controller_type"];
-				$pageControllerClassName = $this->matchedRouteDetails["controller_class_name"];
-				$pageMethodName = $this->matchedRouteDetails["method_name"];
-				
-				
-				if ((isset($this->matchedRouteKey)) && ($this->matchedRouteKey != "not-found")) {
+			/* $logger = $this->container->get('\Amp\Log');
+			
+			$server = $this->container->get('\Amp\Http\Server\SocketHttpServer');
+
+			$errorHandler = $this->container->get('\Amp\Http\Server\DefaultErrorHandler');
+			
+			//Define router
+			$router = new Router($server, $logger, $errorHandler);
+
+			$this->container->instance('\Amp\Http\Server\Router', $router);
+			$router = $this->container->get('\Amp\Http\Server\Router');
+
+			$fallbackResponse = new ClosureRequestHandler(function () {
+						return new Response(HttpStatus::NO_CONTENT);
+					});
 					
-					if ($pageStatus == "ON") {
+            $this->container->instance('\Amp\Http\Server\Response', $fallbackResponse);
+			$fallback = $this->container->get('\Amp\Http\Server\Response');
+			//$router->addMiddleware(new Amp\Http\Server\Middleware\CompressionMiddleware());
+
+
+			$router->addRoute('GET', '/', new ClosureRequestHandler(
+				function () {
+					return new Response(
+						status: HttpStatus::OK,
+						headers: ['content-type' => 'text/plain'],
+						body: 'Hello, world! this is default page based on router',
+					);
+				},
+			));
+
+			//$router->addRoute('GET', '/{name}', new Controller());
+
+			//Define fallback
+			$router->setFallback($fallback);
+
+			//$server->expose('127.0.0.1:1337');
+			$server->expose('0.0.0.0:1337');
+
+			//$server->expose(new Socket\InternetAddress("0.0.0.0", 1337));
+			//$server->expose(new Socket\InternetAddress("[::]", 1337));
+			 
+
+			//$server->start($requestHandler, $errorHandler);
+			$server->start($router, $errorHandler);
+
+			// Serve requests until SIGINT or SIGTERM is received by the process.
+			\Amp\trapSignal([SIGINT, SIGTERM]);
+
+			$server->stop(); */
+			/* 
+			$matchedRouteResponse = $this->container->get('matchedRouteResponse');
+			
+			$this->matchedRouteKey = $this->container->get('MatchedRouteKey'); 
+			
+			$this->matchedRouteDetails = $this->container->get('MatchedRouteDetails'); 
+			
+			$requiredRouteType = "";
+			$requiredRouteType = $this->matchedRouteDetails["route_type"];
+			
+			$pageStatus = $this->matchedRouteDetails["status"];
+			$pageNumberOfRecords = $this->matchedRouteDetails["number_of_records"];
+			$pageNumberOfLoopsCount = $this->matchedRouteDetails["number_of_loops_count"];
+			$pageSleepTimeMinimumSeconds = $this->matchedRouteDetails["sleep_time_minimum_seconds"];
+			$pageSleepTimeMaximumSeconds = $this->matchedRouteDetails["sleep_time_maximum_seconds"];
+			$pageSleepIntervalDefinition = $this->matchedRouteDetails["sleep_interval_definition"];
+			$pageFilename = $this->matchedRouteDetails["page_filename"];
+			$pageRouteType = $this->matchedRouteDetails["route_type"];
+			$pageControllerType = $this->matchedRouteDetails["controller_type"];
+			$pageControllerClassName = $this->matchedRouteDetails["controller_class_name"];
+			$pageMethodName = $this->matchedRouteDetails["method_name"];
+			
+			
+			if ((isset($this->matchedRouteKey)) && ($this->matchedRouteKey != "not-found")) {
+				
+				if ($pageStatus == "ON") {
+					
+					if (($pageRouteType == "cron-job") || ($pageRouteType == "message-queue-worker")) {
 						
-						if (($pageRouteType == "cron-job") || ($pageRouteType == "message-queue-worker")) {
-							
-							if ((isset($pageControllerType)) && (($pageControllerType == "procedural") || ($pageControllerType == "oop-mapped"))) {
-						
-								if (class_exists($pageControllerClassName)) {
-									
-									$matchedController = new $pageControllerClassName($this->container);
+						if ((isset($pageControllerType)) && (($pageControllerType == "procedural") || ($pageControllerType == "oop-mapped"))) {
+					
+							if (class_exists($pageControllerClassName)) {
 								
-									$this->container->instance('MatchedControllerName', $matchedController);
-									$this->matchedController = $this->container->get('MatchedControllerName');
+								$matchedController = new $pageControllerClassName($this->container);
+							
+								$this->container->instance('MatchedControllerName', $matchedController);
+								$this->matchedController = $this->container->get('MatchedControllerName');
+								
+								if ($this->matchedController->checkIfActionExists($pageMethodName)) {
+																		
+									$this->response = $this->matchedController->$pageMethodName();
 									
-									if ($this->matchedController->checkIfActionExists($pageMethodName)) {
-																			
-										$this->response = $this->matchedController->$pageMethodName();
+									if ((isset($this->response)) && ($this->response == 0)) {
+										//Success
+										return $this->response;
 										
-										if ((isset($this->response)) && ($this->response == 0)) {
-											//Success
-											return $this->response;
-											
-										} elseif ((isset($this->response)) && ($this->response == 1)) {
-											//FAILURE
-											//Log Failure scenario content
-											return $this->response;
-											
-										} else {
-											//INVALID (>=2)
-											//Log Invalid scenario reasons
-											return $this->response;
-											
-										}
-										
+									} elseif ((isset($this->response)) && ($this->response == 1)) {
+										//FAILURE
+										//Log Failure scenario content
+										return $this->response;
 										
 									} else {
-									
-										//throw new \Exception($pageMethodName . " action does not exist!");
-										echo html_escaped_output($pageMethodName) . " action does not exist!";
+										//INVALID (>=2)
+										//Log Invalid scenario reasons
+										return $this->response;
+										
 									}
 									
-								} else {
 									
-									//throw new \Exception($pageControllerClassName . " controller does not exist!");
-									echo html_escaped_output($pageControllerClassName) . " controller does not exist!";
+								} else {
+								
+									//throw new \Exception($pageMethodName . " action does not exist!");
+									echo html_escaped_output($pageMethodName) . " action does not exist!";
 								}
 								
+							} else {
+								
+								//throw new \Exception($pageControllerClassName . " controller does not exist!");
+								echo html_escaped_output($pageControllerClassName) . " controller does not exist!";
 							}
-							
-						} else {
-							
-							echo "Cron jobs & Message queue workers are supported at this moment.\n";
 							
 						}
 						
-						
 					} else {
 						
-						//throw new \Exception("Status of cli route is not ON. This trigger will be left to subside!\n");
-						echo "Status of cli route is not ON. This trigger will be left to subside!\n";
-					}
-					
+						echo "Cron jobs & Message queue workers are supported at this moment.\n";
 						
+					}
 					
 					
 				} else {
 					
-					//throw new \Exception("cli route does not exist!\n");
-					echo "cli route does not exist!\n";
+					//throw new \Exception("Status of cli route is not ON. This trigger will be left to subside!\n");
+					echo "Status of cli route is not ON. This trigger will be left to subside!\n";
+				}
+				
 					
-				} */
-			}
+				
+				
+			} else {
+				
+				//throw new \Exception("cli route does not exist!\n");
+				echo "cli route does not exist!\n";
+				
+			} */
+			
 		} else {
 		
 			//Web
