@@ -18,6 +18,7 @@ use \Monolog\Logger;
 use \Monolog\Processor\PsrLogMessageProcessor;
 use \Illuminate\Container\Container;
 use \SebastianBergmann\Timer\Timer;
+use function \Amp\trapSignal;
 
 use \EaseAppPHP\EARapid\Core\EAConfig;
 use \EaseAppPHP\EARapid\Core\EAIsConsole;
